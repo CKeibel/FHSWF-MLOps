@@ -60,12 +60,14 @@ project/
 │   ├── notebooks/ # Notebooks for experiments
 │   ├── src/ # Backend implementation
 │   ├── tests/ # Backend tests
+│   ├── Dockerfile # Containerization
 │   ├── pyproject.toml # Dependencies
 │   ├── README.md # Further instructions
 │   └── ...
 ├── frontend/
 │   ├── src/ # Frontend implementation
 │   ├── tests/ # Frontend tests
+│   ├── Dockerfile # Containerization
 │   ├── pyproject.toml # Dependencies
 │   ├── README.md # Further instructions
 │   └── ...

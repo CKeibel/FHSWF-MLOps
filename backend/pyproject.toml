@@ -6,6 +6,7 @@ dependencies = [
     "uvicorn",
     "pydantic",
     "mlflow",
+    "loguru",
 ]
 
 [tool.setuptools]

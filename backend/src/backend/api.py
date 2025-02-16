@@ -5,4 +5,4 @@ router = APIRouter()
 
 @router.get("/", response_model=str)
 def read_root():
-    return "Hello world!"
+    return "API is running!"

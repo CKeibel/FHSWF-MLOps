@@ -75,3 +75,27 @@ project/
 ├── README.md # Project overview
 └── ...
 ```
+# Docker containerization
+
+Both sub-projects includes a related `Dockerfile`.
+You can build the image by running the following commands:
+
+**backend**
+```
+# Switch to backend directory
+cd backend
+# Build
+docker build -t mlops-backend .
+# Run on port 8080
+docker run -d -p 8080:80 --restart unless-stopped --name mlops-backend mlops-backend
+```
+
+**frontend**
+```
+# Switch to frontend directory
+cd frontend
+# Build
+docker build -t mlops-frontend .
+# Run on port 5000
+docker run -d -p 5000:5000 --restart unless-stopped --name mlops-frontend mlops-frontend
+```

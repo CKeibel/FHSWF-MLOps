@@ -4,7 +4,7 @@
 
 ### Pre-Commit
 
-This project uses precommit for linting and formatting the code before it is actively committed to the project.
+This project uses **pre-commit** for linting and formatting the code before it is actively committed to the codebase.
 This helps to ensure code quality and code readability.
 
 To install pre-commit, the following command can simply be run in the terminal.
@@ -14,9 +14,9 @@ To install pre-commit, the following command can simply be run in the terminal.
 pip install pre-commit
 ```
 
-In the root directory of the project there is a file `.pre-commit-config.yaml` in which the pre-commit is configured.
+In the root directory of the project there is a `.pre-commit-config.yaml` file in which the pre-commit hooks are configured.
 
-In order for the pre commit hooks to be executed automatically before each commit, the following command must be executed in the terminal.
+In order for the pre-commit hooks to be executed automatically before each commit, the following command must be executed in the terminal.
 
 ```
 # Install pre-commit hooks
@@ -30,6 +30,16 @@ For more information visit the [pre-commit website](https://pre-commit.com/).
 The project is divided into two sub-projects, a fastapi backend and a gradio frontend.
 Each of these sub-projects has its own `pyproject.toml` with which the project and its dependencies can be installed.
 
+
+*There is also a `requirements.txt` in the root directory to install all dependencies into a single isolated environment. The separation of `pyproject.toml` is necessary for the containerisation of the two components of the application*
+
+**Single installation**
+
+1. Create a virtual environment to install the project dependencies in isolation.
+This can be done by running `python -m venv .venv`.
+2. To *activate* the environment run `source .venv/bin/activate` on mac/ linux or `./.venv/Scripts/activate` on windows.
+3. To install all dependencies and to be able to develop and contribute to the project run `python -m pip install -r requirements.txt`
+
 **Install backend**
 
 1. To install the backend (fastapi restapi) switch the directory to *backend*
@@ -37,7 +47,7 @@ with `cd backend`.
 2. Create a virtual environment to install the project dependencies in isolation.
 This can be done by running `python -m venv .venv`.
 3. To *activate* the environment run `source .venv/bin/activate` on mac/ linux or `./.venv/Scripts/activate` on windows.
-4. To install all dependencies and to be ablte to develop and contribute to the project run `python -m pip install -e .'[dev]'`
+4. To install all dependencies and to be able to develop and contribute to the project run `python -m pip install -e .'[dev]'`
 
 **Install frontend**
 
@@ -46,7 +56,7 @@ with `cd frontend`.
 2. Create a virtual environment to install the project dependencies in isolation.
 This can be done by running `python -m venv .venv`.
 3. To *activate* the environment run `source .venv/bin/activate` on mac/ linux or `./.venv/Scripts/activate` on windows.
-4. To install all dependencies and to be ablte to develop and contribute to the project run `python -m pip install -e .'[dev]'`
+4. To install all dependencies and to be able to develop and contribute to the project run `python -m pip install -e .'[dev]'`
 
 # Project Structure
 
@@ -77,7 +87,7 @@ project/
 ```
 # Docker containerization
 
-Both sub-projects includes a related `Dockerfile`.
+Both sub-projects include a related `Dockerfile`.
 You can build the image by running the following commands:
 
 **backend**

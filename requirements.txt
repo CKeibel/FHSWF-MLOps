@@ -9,3 +9,7 @@ scikit-learn
 xgboost
 optuna
 gradio
+pytest
+jupyter
+matplotlib
+seaborn

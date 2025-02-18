@@ -7,3 +7,7 @@
 .python-version
 *.ipynb_checkpoints
 *.egg-info
+
+# data
+backend/notebooks/data/*
+backend/notebooks/mlruns/*

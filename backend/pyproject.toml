@@ -7,12 +7,19 @@ dependencies = [
     "pydantic",
     "mlflow",
     "loguru",
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "xgboost",
+    "optuna",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest",
     "jupyter",
+    "matplotlib",
+    "seaborn",
 ]
 
 [tool.pytest.ini_options]

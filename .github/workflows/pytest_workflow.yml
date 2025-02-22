@@ -23,5 +23,5 @@ jobs:
         working-directory: backend
 
       - name: Run tests
-        run: pytest
+        run: pytest || exit 1
         working-directory: backend

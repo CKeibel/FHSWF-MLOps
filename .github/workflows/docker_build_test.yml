@@ -1,4 +1,4 @@
-name: Test Backend
+name: Test Docker Build
 on:
   pull_request:
     branches:

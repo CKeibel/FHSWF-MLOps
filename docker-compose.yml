@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  mlops-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mlops-backend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./backend/logs:/logs
+      - ./backend/mlruns:/mlruns
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  mlops-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: mlops-frontend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./frontend/logs:/logs
+    depends_on:
+      - mlops-backend
+
+volumes:
+  logs:
+  mlruns:

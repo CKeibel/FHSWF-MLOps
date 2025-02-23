@@ -1,0 +1,28 @@
+name: Test Backend
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+    test-docker-backend-build:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout Code
+            uses: actions/checkout@v4
+
+          - name: Build Docker image
+            run: docker build -t mlops-backend .
+            working-directory: backend
+
+          - name: Run Docker container
+            run: docker run -d -p 8080:80 --name mlops-backend mlops-backend
+            working-directory: backend
+
+          - name: Check if container is running
+            run: docker ps | grep mlops-backend
+            working-directory: backend
+
+          - name: Stop Docker container
+            run: docker stop mlops-backend
+            working-directory: backend

@@ -22,6 +22,9 @@ jobs:
         -   name: Run tests
             run: pytest || exit 1
             working-directory: backend
+            env:
+                PYTHONPATH: ${{ github.workspace }}/backend
+
 
     test-docker-backend-build:
         needs: test-backend

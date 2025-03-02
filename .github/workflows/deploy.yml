@@ -1,0 +1,16 @@
+name: Deploy Production
+on:
+  workflow_run:
+    workflows: ["Pytest", "Docker"]
+    branches: [main]
+    types: [completed]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.ref == 'refs/heads/main'
+    steps:
+      - name: Deploy to Prod
+        run: echo "Deploying to production"

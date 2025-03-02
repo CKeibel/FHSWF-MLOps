@@ -19,10 +19,29 @@ jobs:
             run: docker run -d -p 8080:80 --name mlops-backend mlops-backend
             working-directory: backend
 
-          - name: Check if container is running
-            run: docker ps | grep mlops-backend
-            working-directory: backend
+          - name: Wait for container health check
+            timeout-minutes: 1
+            run: |
+              while ! curl -s http://localhost:8080/health > /dev/null; do
+                sleep 1
+              done
+
+          - name: Check health and API endpoints
+            run: |
+              # Health check
+              health_response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health)
+              if [ $health_response -ne 200 ]; then
+                echo "Health check failed with status code $health_response"
+                docker logs mlops-backend
+                exit 1
+              fi
+
+              # Log container status
+              echo "Container logs:"
+              docker logs mlops-backend
 
           - name: Stop Docker container
-            run: docker stop mlops-backend
-            working-directory: backend
+            if: always()
+            run: |
+              docker stop mlops-backend
+              docker rm mlops-backend

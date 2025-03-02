@@ -1,8 +1,6 @@
 name: Pytest
 on:
   push:
-    branches-ignore:
-      - main
 
 jobs:
   test-backend:

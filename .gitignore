@@ -1,6 +1,8 @@
 # environments
 *.venv
 *.env
+*.csv
+*.zip
 
 # python and jupyter
 *__pycache__*

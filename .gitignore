@@ -1,6 +1,8 @@
 # environments
 *.venv
 *.env
+*.csv
+*.zip
 
 # python and jupyter
 *__pycache__*
@@ -11,3 +13,4 @@
 # data
 backend/notebooks/data/*
 backend/notebooks/mlruns/*
+venv/*

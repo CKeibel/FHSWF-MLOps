@@ -3,6 +3,9 @@
 *.env
 *.csv
 *.zip
+*venv
+*env
+*.log
 
 # python and jupyter
 *__pycache__*

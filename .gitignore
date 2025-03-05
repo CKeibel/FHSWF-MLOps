@@ -16,4 +16,4 @@
 # data
 backend/notebooks/data/*
 backend/notebooks/mlruns/*
-venv/*
+/venv

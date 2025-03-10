@@ -17,4 +17,5 @@
 backend/notebooks/data/*
 backend/notebooks/mlruns/*
 backend/mlruns/*
+visualizations
 /venv

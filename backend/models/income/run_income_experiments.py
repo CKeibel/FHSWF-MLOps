@@ -6,6 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "xgboost"))
 
 import mlflow
 import mlflow.sklearn
+from mlflow.tracking import MlflowClient
 import optuna
 
 from sklearn.pipeline import Pipeline
@@ -18,7 +19,7 @@ import pandas as pd
 from pathlib import Path
 from dotenv import load_dotenv
 from pipelinetraining import RandomForestIncomeModelTraining
-from pipelinetraining import XGBoost
+#from pipelinetraining import XGBoost
 
 def main():
     load_dotenv(override=True)
@@ -42,7 +43,15 @@ def main():
     print(dataPath)
     print(mlflowUri)
 
-    RandomForestIncomeModelTraining(mlflowUri = mlflowUri, dataPath = dataPath)
+    bestpipeline = RandomForestIncomeModelTraining(mlflowUri = mlflowUri, dataPath = dataPath, optunaRunNumber=1)
+    testPipeline = bestpipeline.runExperiments()
+
+    model_uri = f"runs:/{bestpipeline.bestRunId}/{testPipeline.getExperimentName()}"
+
+    modelversion = mlflow.register_model(model_uri=model_uri, name=testPipeline.getExperimentName(), tags=testPipeline.getDescTag())
+    
+    client = MlflowClient()
+    client.set_registered_model_alias(name=testPipeline.getExperimentName(), alias='newest', version=modelversion.version)
 
 if __name__ == "__main__":
     main()

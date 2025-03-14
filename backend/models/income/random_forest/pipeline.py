@@ -14,6 +14,8 @@ from pathlib import Path
 class RandomForestPipeline:
     def __init__(self, data, **kwargs):
         
+        self.f1score = 0
+
         catFeatures = data.getCategoricalFeatures()
         numFeatures = data.getNummericalFeatures()
 
@@ -36,9 +38,19 @@ class RandomForestPipeline:
         """Trainiert die Pipeline."""
         self.pipeline.fit(X, y)
     
-    def f1score(self, y_test, y_pred):
+    def setf1score(self, y_test, y_pred):
         """Bewertet das Modell auf Testdaten."""
-        return f1_score(y_test, y_pred)
+        self.f1score = f1_score(y_test, y_pred)
+        return self.f1score
+    
+    def getDescTag(self):
+        return {"items" : "RandomForstAdultIncome"}
+    
+    def getDescription(self):
+        return "A Random forest Model for the prediction of the Adult Income Dataset"
+    
+    def getExperimentName(self):
+        return 'RandomForestAdultIncome'
 
 def main():
     load_dotenv(override=True)

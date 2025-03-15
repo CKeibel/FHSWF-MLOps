@@ -1,9 +1,9 @@
 import pandas as pd
-from datasets.base import BaseDatasetPreProcessor
+from datasets.base import BaseDataset
 from sklearn.model_selection import train_test_split
 
 
-class AdultIncomeData(BaseDatasetPreProcessor):
+class AdultIncomeData(BaseDataset):
     def __init__(self, config: dict):
         self.numerical_features: list[str] = config["columns"]["numerical_features"]
         self.categorical_features: list[str] = config["columns"]["categorical_features"]

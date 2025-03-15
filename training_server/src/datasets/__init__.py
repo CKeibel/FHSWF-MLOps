@@ -1,4 +1,4 @@
-from datasets.base import BaseDatasetPreProcessor
+from datasets.base import BaseDataset
 from datasets.factory import DatasetFactory
 
-__all__ = ["BaseDatasetPreProcessor", "DatasetFactory"]
+__all__ = ["BaseDataset", "DatasetFactory"]

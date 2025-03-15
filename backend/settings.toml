@@ -1,0 +1,7 @@
+[default]
+data_path = "path/to/data"
+mlflow_uri = "path/to/mlflow"
+
+[production]
+data_path = "production_path"
+mlflow_uri = "production_uri"

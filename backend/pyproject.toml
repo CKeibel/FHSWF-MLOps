@@ -2,6 +2,7 @@
 name = "backend"
 version = "0.1.0"
 requires-python = ">=3.11"
+description = "MLOps Project Backend"
 dependencies = [
     "fastapi >=0.115.8",
     "uvicorn >=0.34.0",
@@ -14,7 +15,11 @@ dependencies = [
     "xgboost >=2.1.4",
     "optuna >=4.2.1",
     "dvc >=3.59.1",
+    "dynaconf >=3.2.10"
 ]
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [project.optional-dependencies]
 dev = [
@@ -25,14 +30,5 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-pythonpath = [
-    "src"
-]
-addopts = [
-    "--import-mode=importlib",
-    "--pyargs",
-]
-
-testpaths = [
-    "tests",
-]
+pythonpath = ["src"]
+testpaths = ["tests"]

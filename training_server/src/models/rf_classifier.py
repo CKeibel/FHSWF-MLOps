@@ -1,5 +1,6 @@
 import mlflow
 import optuna
+from mlflow.client import MlflowClient
 from mlflow.models import infer_signature
 from models.base import BaseModel
 from sklearn.compose import ColumnTransformer
@@ -13,6 +14,7 @@ class RandomForestClassifier(BaseModel):
         self.preprocessor = preprocessor
         self.model = None
         self.study = None
+        self.name = "RandomForestClassifier"
 
     def optimize(
         self, X_train, y_train, X_test, y_test, n_trials=10
@@ -28,7 +30,7 @@ class RandomForestClassifier(BaseModel):
             model = Pipeline(
                 [
                     ("preprocessor", self.preprocessor),
-                    ("classifier", RandomForestClassifier(**params, random_state=42)),
+                    ("classifier", RFC(**params, random_state=42)),
                 ]
             )
 
@@ -48,7 +50,6 @@ class RandomForestClassifier(BaseModel):
                     RFC(
                         **self.study.best_params,
                         random_state=42,
-                        use_label_encoder=False
                     ),
                 ),
             ]
@@ -71,11 +72,19 @@ class RandomForestClassifier(BaseModel):
             }
         )
 
+        # Model logging with registration
         signature = infer_signature(X_test, y_pred)
         mlflow.sklearn.log_model(
             self.model,
-            "RandomForestClassifier",
+            "model",
             signature=signature,
             input_example=X_test[:5].to_dict(orient="records"),
+            registered_model_name=self.name,
         )
+
+        # Register best version
+        model_uri = f"runs:/{mlflow.active_run().info.run_id}/model"
+        model_version = mlflow.register_model(model_uri, self.name)
+        client = MlflowClient()
+        client.set_registered_model_alias(self.name, "newest", model_version.version)
         return self

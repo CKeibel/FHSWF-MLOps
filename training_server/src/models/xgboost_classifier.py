@@ -1,5 +1,6 @@
 import mlflow
 import optuna
+from mlflow.client import MlflowClient
 from mlflow.models import infer_signature
 from models.base import BaseModel
 from sklearn.compose import ColumnTransformer
@@ -13,6 +14,7 @@ class XGBClassifier(BaseModel):
         self.preprocessor = preprocessor
         self.model = None
         self.study = None
+        self.name = "XGBClassifier"
 
     def optimize(
         self, X_train, y_train, X_test, y_test, n_trials=10
@@ -27,7 +29,6 @@ class XGBClassifier(BaseModel):
                 "scale_pos_weight": trial.suggest_float("scale_pos_weight", 1, 10),
                 "eval_metric": "logloss",
             }
-
             model = Pipeline(
                 [
                     ("preprocessor", self.preprocessor),
@@ -54,7 +55,7 @@ class XGBClassifier(BaseModel):
                     XGB(
                         **self.study.best_params,
                         random_state=42,
-                        use_label_encoder=False
+                        use_label_encoder=False,
                     ),
                 ),
             ]
@@ -77,11 +78,20 @@ class XGBClassifier(BaseModel):
             }
         )
 
+        # Model logging with registration
         signature = infer_signature(X_test, y_pred)
         mlflow.sklearn.log_model(
             self.model,
-            "XGBClassifier",
+            "model",
             signature=signature,
             input_example=X_test[:5].to_dict(orient="records"),
+            registered_model_name=self.name,
         )
+
+        # Register best version
+        model_uri = f"runs:/{mlflow.active_run().info.run_id}/model"
+        model_version = mlflow.register_model(model_uri, self.name)
+        client = MlflowClient()
+        client.set_registered_model_alias(self.name, "newest", model_version.version)
+
         return self

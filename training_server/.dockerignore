@@ -1,0 +1,13 @@
+# environments
+*.venv
+*.env
+
+# python and jupyter
+*__pycache__*
+.python-version
+*.ipynb_checkpoints
+*.egg-info
+
+# project
+tests
+*mlruns

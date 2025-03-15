@@ -1,0 +1,29 @@
+[project]
+name = "training-server"
+version = "0.1.0"
+requires-python = ">=3.11"
+description = "MLOps Project Training Server"
+dependencies = [
+    "mlflow >=2.20.2",
+    "loguru >=0.7.3",
+    "pandas >=2.2.3",
+    "numpy >=1.24.0",
+    "scikit-learn >=1.6.1",
+    "xgboost >=2.1.4",
+    "optuna >=4.2.1",
+    "dvc >=3.59.1",
+    "dynaconf >=3.2.10"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest >=8.3.4",
+    "jupyter >=1.0.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

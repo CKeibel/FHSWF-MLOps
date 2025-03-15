@@ -14,7 +14,8 @@ dependencies = [
     "scikit-learn >=1.6.1",
     "xgboost >=2.1.4",
     "optuna >=4.2.1",
-    "dynaconf >=3.2.10"
+    "dynaconf >=3.2.10",
+    "python-multipart ==0.0.20"
 ]
 
 [project.optional-dependencies]

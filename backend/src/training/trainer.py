@@ -1,4 +1,5 @@
 import mlflow
+from config import settings
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
@@ -7,9 +8,9 @@ from training.models import BaseModel, ModelFactory
 
 
 class Trainer:
-    def __init__(self, config: dict) -> None:
-        self.config = config
-        self.data = AdultIncomeData(config["dataset"])
+    def __init__(self) -> None:
+        self.config = settings
+        self.data = AdultIncomeData(self.config["dataset"])
         self.preprocessor = self.__init_preprocessor()
         self.models: list[BaseModel] = self.__load_models_from_config(
             self.config["models"]

@@ -24,8 +24,8 @@ def set_model():
     return {"status": "ok"}
 
 
-@router.post("/retrain")
-async def trigger_retraining(
+@router.post("/upload_data", response_model=dict)
+async def upload_data(
     file: UploadFile,
     background_tasks: BackgroundTasks,
     trainer: Trainer = Depends(lambda: Trainer()),

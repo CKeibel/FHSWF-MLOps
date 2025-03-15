@@ -1,11 +1,10 @@
-
 from dynaconf import Dynaconf
 
 settings = Dynaconf(
     envvar_prefix="DYNACONF",
-    settings_files=['settings.yaml', '.secrets.toml'],
+    settings_files=["settings.yaml", ".secrets.toml"],
     environments=True,  # Enable environments like default, development, production
-    lowercase_read=True
+    lowercase_read=True,
 )
 
 # `envvar_prefix` = export envvars with `export DYNACONF_FOO=bar`.

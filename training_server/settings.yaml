@@ -1,6 +1,9 @@
 default:
   mlflow:
-    tracking_uri: mlruns
+    tracking_uri: models
+    experiment_name: AdultIncome
+  optimization:
+    n_trials: 2
   models:
     - XGBClassifier
     - RandomForestClassifier
@@ -9,14 +12,12 @@ default:
     path: notebooks/data/adult.csv
     columns:
       target: income
-      numerical_features:
+      features:
         - age
-        - fnlwgt
         - education-num
         - capital-gain
         - capital-loss
         - hours-per-week
-      categorical_features:
         - workclass
         - education
         - marital-status

@@ -6,6 +6,7 @@
 *venv
 *env
 *.log
+*.mlops
 
 # python and jupyter
 *__pycache__*
@@ -19,3 +20,5 @@ backend/notebooks/mlruns/*
 backend/mlruns/*
 visualizations
 /venv
+*mlruns
+*.DS_Store

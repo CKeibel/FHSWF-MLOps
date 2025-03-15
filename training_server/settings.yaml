@@ -1,0 +1,28 @@
+default:
+  mlflow:
+    tracking_uri: models
+    experiment_name: AdultIncome
+  optimization:
+    n_trials: 2
+  models:
+    - XGBClassifier
+    - RandomForestClassifier
+  dataset:
+    name: AdultIncomeData
+    path: notebooks/data/adult.csv
+    columns:
+      target: income
+      features:
+        - age
+        - education-num
+        - capital-gain
+        - capital-loss
+        - hours-per-week
+        - workclass
+        - education
+        - marital-status
+        - occupation
+        - relationship
+        - race
+        - sex
+        - native-country

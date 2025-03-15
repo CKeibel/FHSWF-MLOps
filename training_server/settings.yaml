@@ -1,0 +1,27 @@
+default:
+  mlflow:
+    tracking_uri: mlruns
+  models:
+    - XGBClassifier
+    - RandomForestClassifier
+  dataset:
+    name: AdultIncomeData
+    path: notebooks/data/adult.csv
+    columns:
+      target: income
+      numerical_features:
+        - age
+        - fnlwgt
+        - education-num
+        - capital-gain
+        - capital-loss
+        - hours-per-week
+      categorical_features:
+        - workclass
+        - education
+        - marital-status
+        - occupation
+        - relationship
+        - race
+        - sex
+        - native-country

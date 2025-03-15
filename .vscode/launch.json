@@ -6,7 +6,7 @@
     "configurations": [
 
         {
-            "name": "Python Debugger: FastAPI",
+            "name": "Backend",
             "type": "debugpy",
             "request": "launch",
             "module": "uvicorn",

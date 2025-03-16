@@ -3,7 +3,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.metrics import f1_score
 from sklearn.pipeline import Pipeline
-from training.models.base import BaseModel
+from src.training.models.base import BaseModel
 
 
 class RandomForestClassifier(BaseModel):

@@ -1,6 +1,6 @@
-from training.models.base import BaseModel
-from training.models.randomforest import RandomForestClassifier
-from training.models.xgboost import XGBClassifier
+from src.training.models.base import BaseModel
+from src.training.models.randomforest import RandomForestClassifier
+from src.training.models.xgboost import XGBClassifier
 
 models = {
     "XGBClassifier": XGBClassifier,

@@ -2,7 +2,7 @@ import optuna
 from sklearn.compose import ColumnTransformer
 from sklearn.metrics import f1_score
 from sklearn.pipeline import Pipeline
-from training.models.base import BaseModel
+from src.training.models.base import BaseModel
 from xgboost import XGBClassifier as XGB
 
 

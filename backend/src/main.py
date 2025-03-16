@@ -4,10 +4,10 @@ import logging
 import sys
 from contextlib import asynccontextmanager
 
-from api import router
 from fastapi import FastAPI
-from service import Service
-from training import Trainer
+from src.api import router
+from src.service import Service
+from src.training import Trainer
 
 # Configure logging
 logging.basicConfig(

@@ -1,13 +1,13 @@
 import mlflow
-from config import settings
 from mlflow.client import MlflowClient
 from mlflow.models import infer_signature
 from sklearn.compose import ColumnTransformer
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
-from training.dataset import AdultIncomeData
-from training.models import BaseModel, ModelFactory
+from src.config import settings
+from src.training.dataset import AdultIncomeData
+from src.training.models import BaseModel, ModelFactory
 
 
 class Trainer:

@@ -5,9 +5,14 @@ import logging
 
 import pandas as pd
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, UploadFile
-from schemas import ModelInfo, PredictionRequest, PredictionResponse, SetModelRequest
-from service import Service
-from training import Trainer
+from src.schemas import (
+    ModelInfo,
+    PredictionRequest,
+    PredictionResponse,
+    SetModelRequest,
+)
+from src.service import Service
+from src.training import Trainer
 
 # Configure logging
 logger = logging.getLogger(__name__)

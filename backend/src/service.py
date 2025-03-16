@@ -4,8 +4,8 @@ from typing import Any
 
 import mlflow
 import pandas as pd
-from config import settings
 from mlflow.tracking import MlflowClient
+from src.config import settings
 
 # Configure logging
 logging.basicConfig(

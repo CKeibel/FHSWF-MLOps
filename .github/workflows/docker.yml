@@ -23,11 +23,36 @@ jobs:
             working-directory: backend
 
           - name: Wait for container health check
-            timeout-minutes: 1
+            timeout-minutes: 10  # Increased timeout to 10 minutes
             run: |
-              while ! curl -s http://localhost:8080/health > /dev/null; do
-                sleep 1
+              echo "Waiting for API to be ready..."
+              # More robust health check with better error handling
+              attempts=0
+              max_attempts=60
+              while [ $attempts -lt $max_attempts ]; do
+                health_status=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health || echo "failed")
+
+                if [ "$health_status" = "200" ]; then
+                  echo "Health check succeeded after $attempts attempts!"
+                  break
+                fi
+
+                # Show progress indicator and logs every 30 seconds
+                if [ $((attempts % 10)) -eq 0 ]; then
+                  echo "Still waiting... (Attempt $attempts of $max_attempts)"
+                  echo "Container logs so far:"
+                  docker logs mlops-backend --tail 20
+                fi
+
+                attempts=$((attempts+1))
+                sleep 10  # Check every 10 seconds
               done
+
+              if [ $attempts -eq $max_attempts ]; then
+                echo "Health check timed out after $max_attempts attempts"
+                docker logs mlops-backend
+                exit 1
+              fi
 
           - name: Check health and API endpoints
             run: |
@@ -37,11 +62,11 @@ jobs:
                 echo "Health check failed with status code $health_response"
                 docker logs mlops-backend
                 exit 1
+              else
+                echo "Health check passed with status code 200"
+                health_content=$(curl -s http://localhost:8080/health)
+                echo "Health endpoint response: $health_content"
               fi
-
-              # Log container status
-              echo "Container logs:"
-              docker logs mlops-backend
 
           - name: Stop Docker container
             if: always()

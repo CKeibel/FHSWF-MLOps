@@ -3,7 +3,7 @@ default:
     tracking_uri: mlruns
     experiment_name: AdultIncome
   optimization:
-    n_trials: 2
+    n_trials: 10
   models:
     - XGBClassifier
     - RandomForestClassifier

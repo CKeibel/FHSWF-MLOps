@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Entrypoint module for the API."""
 import logging
+import sys
 from contextlib import asynccontextmanager
 
 from api import router
@@ -21,19 +22,17 @@ async def lifespan(app: FastAPI):
     logger.info("Starting application...")
     service = Service()
 
-    # Run training on startup if no model is loaded
     if service.model is None:
         logger.info("No model found. Starting initial training...")
         trainer = Trainer()
         trainer.fit_and_log(n_trails=2)
-
-        # Try to load the newly trained model
         try:
             service.load_model_by_alias(alias="newest")
             logger.info(f"Loaded model version {service.model_version} successfully")
         except Exception as e:
             logger.error(f"Failed to load model after training: {str(e)}")
-
+            logger.error("Shutting down application...")
+            sys.exit(1)
     yield
 
     # Cleanup

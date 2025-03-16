@@ -45,7 +45,7 @@ class Trainer:
         )
         return preprocessor
 
-    def fit_and_log(self, n_trails: int) -> None:
+    def fit_and_log(self, n_trails: int = None) -> None:
         mlflow.set_experiment(self.config["mlflow"]["experiment_name"])
 
         for model in self.models:

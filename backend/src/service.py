@@ -39,7 +39,7 @@ class Service:
 
             # Try to load model on initialization
             try:
-                self._load_latest_model()
+                self.load_model_by_alias("best")
                 logger.info(f"Loaded model version {self.model_version} successfully")
             except Exception as e:
                 logger.warning(f"No model loaded at startup: {str(e)}")
@@ -71,6 +71,7 @@ class Service:
                         "run_id": run_id,
                         "model_name": model_name,
                         "model_type": run.data.tags.get("mlflow.runName", model_name),
+                        "metrics": {k: v for k, v in run.data.metrics.items()},
                     }
 
                     return self.model_metadata
@@ -86,22 +87,10 @@ class Service:
 
     def get_model_info(self) -> dict[str, Any]:
         """Get information about the currently loaded model"""
-        if self.model is None or self.model_version is None:
+        if self.model is None or self.model_metadata is None:
             raise ValueError("No model loaded")
 
-        run = self.client.get_run(self.model_version)
-
-        # Combine stored metadata with runtime information
-        return {
-            **self.model_metadata,  # Include all stored metadata
-            "last_updated": datetime.fromtimestamp(run.info.start_time / 1000),
-            "features": (
-                list(self.model.feature_names_in_)
-                if hasattr(self.model, "feature_names_in_")
-                else []
-            ),
-            "metrics": {k: v for k, v in run.data.metrics.items()},
-        }
+        return self.model_metadata
 
     def predict(self, features: pd.DataFrame) -> list[float]:
         """Make predictions using the currently loaded model"""

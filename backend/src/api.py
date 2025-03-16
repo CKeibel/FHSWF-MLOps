@@ -2,11 +2,10 @@
 """API."""
 import io
 import logging
-from typing import Any, Dict, List
 
 import pandas as pd
-from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, UploadFile
-from pydantic import BaseModel
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, UploadFile
+from schemas import ModelInfo, PredictionRequest, PredictionResponse, SetModelRequest
 from service import Service
 from training import Trainer
 
@@ -15,19 +14,6 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 service = Service()  # Singleton instance
-
-
-class ModelRequest(BaseModel):
-    tag: str = "latest"  # Default to latest
-
-
-class PredictionRequest(BaseModel):
-    data: Dict[str, Any]
-
-
-class PredictionResponse(BaseModel):
-    predictions: List[float]
-    model_version: str
 
 
 @router.get("/health", response_model=dict)
@@ -40,13 +26,13 @@ def read_root():
 
 
 @router.post("/predict", response_model=PredictionResponse)
-async def predict(request: PredictionRequest):
+async def predict(request: PredictionRequest) -> PredictionResponse:
     if not service.model:
         raise HTTPException(status_code=503, detail="Model not loaded")
 
     try:
-        # Convert input data to DataFrame
-        input_data = pd.DataFrame([request.data])
+        # Convert request to DataFrame with all required features
+        input_data = pd.DataFrame([request.data.dict(by_alias=True)])
 
         # Make predictions
         predictions = service.predict(input_data)
@@ -59,27 +45,25 @@ async def predict(request: PredictionRequest):
         raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
 
 
-@router.post("/set_model", response_model=dict)
-async def set_model(request: ModelRequest):
+@router.post("/set_model", response_model=ModelInfo)
+async def set_model(request: SetModelRequest) -> ModelInfo:
     try:
-        model_info = service.set_model_by_tag(request.tag)
-        return {
-            "status": "ok",
-            "message": "Model set successfully",
-            "model_info": model_info,
-        }
+        model_info = service.load_model_by_alias(request.alias)
+        return ModelInfo(**model_info)
+
     except Exception as e:
         logger.error(f"Error setting model: {str(e)}")
         raise HTTPException(status_code=404, detail=f"Error setting model: {str(e)}")
 
 
-@router.get("/model-info", response_model=dict)
-async def get_model_info():
+@router.get("/model-info", response_model=ModelInfo)
+async def get_model_info() -> ModelInfo:
     if not service.model:
         raise HTTPException(status_code=503, detail="Model not loaded")
 
     try:
-        return service.get_model_info()
+        model_info = service.get_model_info()
+        return ModelInfo(**model_info)
     except Exception as e:
         logger.error(f"Error getting model info: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")

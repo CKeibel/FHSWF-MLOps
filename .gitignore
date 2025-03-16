@@ -1,7 +1,6 @@
 # environments
 *.venv
 *.env
-*.csv
 *.zip
 *venv
 *env
@@ -19,3 +18,8 @@ backend/notebooks/mlruns/*
 backend/mlruns/*
 visualizations
 /venv
+
+# Ignore dynaconf secret files
+.secrets.*
+*.DS_Store
+*mlruns

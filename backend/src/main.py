@@ -25,11 +25,12 @@ async def lifespan(app: FastAPI):
     if service.model is None:
         logger.info("No model found. Starting initial training...")
         trainer = Trainer()
-        trainer.fit_and_log()
+        trainer.fit_and_log(n_trails=2)
 
         # Try to load the newly trained model
         try:
-            service.set_model_by_tag("latest")
+            service.load_model_by_alias(alias="newest")
+            logger.info(f"Loaded model version {service.model_version} successfully")
         except Exception as e:
             logger.error(f"Failed to load model after training: {str(e)}")
 

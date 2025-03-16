@@ -1,11 +1,10 @@
 import logging
-import os
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import mlflow
 import pandas as pd
+from config import settings
 from mlflow.tracking import MlflowClient
 
 # Configure logging
@@ -19,6 +18,7 @@ class Service:
     _instance = None
 
     def __new__(cls):
+        """Singleton instance"""
         if cls._instance is None:
             cls._instance = super(Service, cls).__new__(cls)
             cls._instance.initialized = False
@@ -27,14 +27,15 @@ class Service:
     def __init__(self) -> None:
         if not self.initialized:
             # Set MLflow tracking URI
-            mlflow_dir = os.getenv("MLFLOW_TRACKING_URI", "mlruns")
-            mlflow.set_tracking_uri(f"file:{mlflow_dir}")
+            self.mlflow_dir = settings["mlflow"]["tracking_uri"]
+            mlflow.set_tracking_uri(f"file:{self.mlflow_dir}")
             logger.info(f"MLflow tracking URI set to: {mlflow.get_tracking_uri()}")
 
             self.client = MlflowClient()
-            self.experiment_name = os.getenv("MLFLOW_EXPERIMENT_NAME", "AdultIncome")
+            self.experiment_name = settings["mlflow"]["experiment_name"]
             self.model = None
             self.model_version = None
+            self.model_metadata = None
 
             # Try to load model on initialization
             try:
@@ -45,96 +46,64 @@ class Service:
 
             self.initialized = True
 
-    def _load_latest_model(self) -> None:
-        """Load the latest available model"""
-        experiment = self.client.get_experiment_by_name(self.experiment_name)
-        if not experiment:
-            logger.warning(f"Experiment '{self.experiment_name}' not found")
-            return
-
-        # Search for latest successful run
-        runs = self.client.search_runs(
-            experiment_ids=[experiment.experiment_id],
-            filter_string="attributes.status = 'FINISHED'",
-            order_by=["attribute.start_time DESC"],
-            max_results=1,
-        )
-
-        if not runs:
-            logger.warning(
-                f"No successful runs found for experiment {self.experiment_name}"
-            )
-            return
-
-        run = runs[0]
-        run_id = run.info.run_id
-
-        # Load model from the run
+    def load_model_by_alias(self, alias: str = "newest") -> dict:
+        """Load a model by alias from the model registry."""
         try:
-            self.model = mlflow.pyfunc.load_model(f"runs:/{run_id}/model")
-            self.model_version = run_id
-            logger.info(f"Loaded model from run {run_id}")
+            # First, find models that have our alias
+            for model_name in settings["models"]:
+                try:
+                    # Try to get model version by alias
+                    model_version = self.client.get_model_version_by_alias(
+                        model_name, alias
+                    )
+
+                    # If we found it, load this model
+                    run_id = model_version.run_id
+                    self.model_version = run_id
+                    model_uri = f"models:/{model_name}@{alias}"
+                    self.model = mlflow.pyfunc.load_model(model_uri)
+
+                    # Store model metadata for later use
+                    run = self.client.get_run(run_id)
+                    self.model_metadata = {
+                        "model_version": self.model_version,
+                        "alias": alias,
+                        "run_id": run_id,
+                        "model_name": model_name,
+                        "model_type": run.data.tags.get("mlflow.runName", model_name),
+                    }
+
+                    return self.model_metadata
+
+                except mlflow.exceptions.MlflowException:
+                    continue
+
+            raise ValueError(f"No model found with alias '{alias}'")
+
         except Exception as e:
-            logger.error(f"Error loading model: {str(e)}")
+            logger.error(f"Error loading model by alias '{alias}': {str(e)}")
             raise
 
-    def set_model_by_tag(self, tag: str) -> Dict[str, Any]:
-        """
-        Load and set the current model by tag.
+    def get_model_info(self) -> dict[str, Any]:
+        """Get information about the currently loaded model"""
+        if self.model is None or self.model_version is None:
+            raise ValueError("No model loaded")
 
-        Args:
-            tag: Tag to identify the model ('production', 'staging', 'latest', or run_id)
+        run = self.client.get_run(self.model_version)
 
-        Returns:
-            Dictionary with model metadata
-        """
-        experiment = self.client.get_experiment_by_name(self.experiment_name)
-        if not experiment:
-            raise ValueError(f"Experiment '{self.experiment_name}' not found")
-
-        if tag == "latest":
-            # Get the latest run
-            runs = self.client.search_runs(
-                experiment_ids=[experiment.experiment_id],
-                order_by=["attribute.start_time DESC"],
-                max_results=1,
-            )
-            if not runs:
-                raise ValueError("No runs found in experiment")
-            run_id = runs[0].info.run_id
-
-        elif tag in ["production", "staging", "archived"]:
-            # Find runs with the given tag
-            runs = self.client.search_runs(
-                experiment_ids=[experiment.experiment_id],
-                filter_string=f"tags.stage = '{tag}'",
-                order_by=["attribute.start_time DESC"],
-            )
-            if not runs:
-                raise ValueError(f"No runs found with stage '{tag}'")
-            run_id = runs[0].info.run_id
-        else:
-            # Assume the tag is a run_id
-            run_id = tag
-
-        # Load the model
-        self.model = mlflow.pyfunc.load_model(f"runs:/{run_id}/model")
-        self.model_version = run_id
-
-        # Get model metadata
-        run = self.client.get_run(run_id)
-        model_info = {
-            "run_id": run_id,
-            "model_name": run.data.tags.get("mlflow.runName", "unknown"),
-            "stage": run.data.tags.get("stage", "none"),
+        # Combine stored metadata with runtime information
+        return {
+            **self.model_metadata,  # Include all stored metadata
+            "last_updated": datetime.fromtimestamp(run.info.start_time / 1000),
+            "features": (
+                list(self.model.feature_names_in_)
+                if hasattr(self.model, "feature_names_in_")
+                else []
+            ),
             "metrics": {k: v for k, v in run.data.metrics.items()},
-            "parameters": {k: v for k, v in run.data.params.items()},
-            "timestamp": run.info.start_time,
         }
 
-        return model_info
-
-    def predict(self, features: pd.DataFrame) -> List[float]:
+    def predict(self, features: pd.DataFrame) -> list[float]:
         """Make predictions using the currently loaded model"""
         if self.model is None:
             raise ValueError("No model loaded. Call set_model_by_tag first.")
@@ -152,21 +121,3 @@ class Service:
             predictions = self.model.predict(features).tolist()
 
         return predictions
-
-    def get_model_info(self) -> Dict[str, Any]:
-        """Get information about the currently loaded model"""
-        if self.model is None or self.model_version is None:
-            raise ValueError("No model loaded")
-
-        run = self.client.get_run(self.model_version)
-
-        return {
-            "model_version": self.model_version,
-            "last_updated": datetime.fromtimestamp(run.info.start_time / 1000),
-            "features": (
-                list(self.model.feature_names_in_)
-                if hasattr(self.model, "feature_names_in_")
-                else []
-            ),
-            "metrics": {k: v for k, v in run.data.metrics.items()},
-        }

@@ -13,7 +13,3 @@ class BaseModel(ABC):
     @abstractmethod
     def optimize(self, X_train, y_train, X_test, y_test, n_trials=10) -> "BaseModel":
         pass
-
-    @abstractmethod
-    def log(self, X_test, y_test) -> "BaseModel":
-        pass

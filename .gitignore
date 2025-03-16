@@ -1,7 +1,6 @@
 # environments
 *.venv
 *.env
-*.csv
 *.zip
 *venv
 *env

@@ -1,2 +1,0 @@
-MLFLOW_TRACKING_URL=backend/mlruns
-DATA_PATH=data/origin

@@ -28,7 +28,7 @@ class Service:
         if not self.initialized:
             # Set MLflow tracking URI
             self.mlflow_dir = settings["mlflow"]["tracking_uri"]
-            mlflow.set_tracking_uri(f"file:{self.mlflow_dir}")
+            mlflow.set_tracking_uri(self.mlflow_dir)
             logger.info(f"MLflow tracking URI set to: {mlflow.get_tracking_uri()}")
 
             self.client = MlflowClient()

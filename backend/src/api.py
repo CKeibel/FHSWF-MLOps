@@ -40,10 +40,10 @@ async def predict(request: PredictionRequest) -> PredictionResponse:
         input_data = pd.DataFrame([request.data.dict(by_alias=True)])
 
         # Make predictions
-        predictions = service.predict(input_data)
+        prediction = service.predict(input_data)
 
         return PredictionResponse(
-            predictions=predictions, model_version=service.model_version
+            prediction=prediction, model_version=service.model_version
         )
     except Exception as e:
         logger.error(f"Prediction error: {str(e)}")

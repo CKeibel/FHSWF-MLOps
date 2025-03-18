@@ -21,9 +21,21 @@ services:
       bash -c "pip install mlflow psycopg2-binary &&
               mlflow ui --host 0.0.0.0 --port 5000 --backend-store-uri file:///mlflow"
     ports:
-      - "5000:5000"
+      - "5001:5000"
     volumes:
       - mlflow_data:/mlflow
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501"
+    environment:
+      - DYNACONF_BACKEND_URL=http://backend:8080/predict
+    depends_on:
+      - backend
     restart: unless-stopped
 
 volumes:

@@ -106,9 +106,11 @@ html_template = """
 
 
 class AdultIncomeDataVisualisation:
-    def __init__(self, mlflowRun, dataToVisOrigin, dataToVis):
-        self.mlflow_run = mlflowRun
-        self.artifact_dir = "visualizations"
+    def __init__(self, dataToVisOrigin, dataToVis, config = None):
+        
+        if config is None:
+            self.artifact_dir = "visualizations"
+            
         os.makedirs(self.artifact_dir, exist_ok=True)
         self.dataToVisOrigin = dataToVisOrigin
         self.dataToVis = dataToVis

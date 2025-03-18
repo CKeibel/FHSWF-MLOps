@@ -4,11 +4,13 @@ from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.metrics import f1_score
 from sklearn.pipeline import Pipeline
 from src.training.models.base import BaseModel
+from sklearn.preprocessing import FunctionTransformer
 
 
 class RandomForestClassifier(BaseModel):
-    def __init__(self, preprocessor: ColumnTransformer) -> None:
+    def __init__(self, preprocessor: ColumnTransformer, customprocessor: FunctionTransformer) -> None:
         self.preprocessor = preprocessor
+        self.customprocessor = customprocessor
         self.model = None
         self.study = None
         self.name = "RandomForestClassifier"
@@ -26,6 +28,7 @@ class RandomForestClassifier(BaseModel):
 
             model = Pipeline(
                 [
+                    ("custom_preprocessor", self.customprocessor),
                     ("preprocessor", self.preprocessor),
                     ("classifier", RFC(**params, random_state=42)),
                 ]

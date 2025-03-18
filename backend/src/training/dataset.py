@@ -1,5 +1,6 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from src.training.datavisualisation import AdultIncomeDataVisualisation
 
 
 class AdultIncomeData:
@@ -8,20 +9,30 @@ class AdultIncomeData:
         self.features: list[str] = config["columns"]["features"]
 
         # Load initial data
-        self.origin_data = pd.read_csv(
+        self.current_data = pd.read_csv(
             config["path"],
             usecols=self.features + [self.target],
             na_values=" ?",
             header=0,
         )
 
+        if (config["origin_path"] is not None):
+            self.origin_data = pd.read_csv(
+                config["origin_path"],
+                usecols=self.features + [self.target],
+                na_values=" ?",
+                header=0,
+            )
+
+            self.visClass = AdultIncomeDataVisualisation(self.origin_data, self.current_data, )
+        
         # Process the data
         self._process_data()
 
     def _process_data(self) -> None:
-        """Process the origin_data to prepare for training."""
+        """Process the current_data to prepare for training."""
         # Clean data and prepare X, y
-        df = self._clean_data(self.origin_data)
+        df = self._clean_data(self.current_data)
         X, y = self._prepare_features_target(df)
 
         # Detect feature types
@@ -59,14 +70,14 @@ class AdultIncomeData:
     def get_nummerical_features(self) -> list[str]:
         return self.numerical_features
 
-    def set_origin_data(self, df: pd.DataFrame) -> None:
+    def set_current_data(self, df: pd.DataFrame) -> None:
         """
-        Setter for origin_data that ensures all dependent data is updated.
+        Setter for current_data that ensures all dependent data is updated.
 
         Args:
-            df: New DataFrame to set as origin_data
+            df: New DataFrame to set as current_data
         """
-        self.origin_data = df
+        self.current_data = df
         self._process_data()
 
     def append_data(self, new_df: pd.DataFrame) -> None:
@@ -90,7 +101,7 @@ class AdultIncomeData:
 
         # Check data types for required columns
         for col in required_columns:
-            original_dtype = self.origin_data[col].dtype
+            original_dtype = self.current_data[col].dtype
             new_dtype = new_df[col].dtype
 
             # For numeric columns, ensure they're numeric
@@ -112,6 +123,6 @@ class AdultIncomeData:
         # Filter to only include required columns
         filtered_df = new_df[required_columns].copy()
 
-        # Append to origin_data and reprocess
-        combined_df = pd.concat([self.origin_data, filtered_df], ignore_index=True)
-        self.set_origin_data(combined_df)
+        # Append to current_data and reprocess
+        combined_df = pd.concat([self.current_data, filtered_df], ignore_index=True)
+        self.set_current_data(combined_df)

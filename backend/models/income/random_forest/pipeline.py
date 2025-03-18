@@ -3,7 +3,7 @@ import os
 
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
+from sklearn.preprocessing import OneHotEncoder, MinMaxScaler, FunctionTransformer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score
@@ -20,6 +20,7 @@ class RandomForestPipeline:
         numFeatures = data.getNummericalFeatures()
 
         self.pipeline = Pipeline([
+            ('custom_preprocessing', FunctionTransformer(self.custom_preprocessing)),
             ('preprocessor', ColumnTransformer(
                 transformers=[
                     ('num', MinMaxScaler(), numFeatures),
@@ -33,6 +34,14 @@ class RandomForestPipeline:
                 random_state=42
             ))
         ])
+
+    def custom_preprocessing(self, dfX):
+        #dfX = dfX.copy()  # Um Änderungen am Original-Dataset zu vermeiden
+        dfX["native-country"] = dfX["native-country"].apply(lambda x: x if x == "United-States" else "Other Countries")
+        dfX["race"] = dfX["race"].apply(lambda x: x if x == "White" else "Other")
+        #dfX.drop(columns=["education"], inplace=True)
+        
+        return dfX 
         
     def fit(self, X, y):
         """Trainiert die Pipeline."""
@@ -81,7 +90,7 @@ def main():
     
     y_pred = model.pipeline.predict(data.X_test)
 
-    accuracy = model.f1score(data.y_test, y_pred)
+    accuracy = model.setf1score(data.y_test, y_pred)
     
     print(f"Model Accuracy: {accuracy:.4f}")
 

@@ -18,6 +18,7 @@ backend/notebooks/mlruns/*
 backend/mlruns/*
 visualizations
 /venv
+/data
 
 # Ignore dynaconf secret files
 .secrets.*

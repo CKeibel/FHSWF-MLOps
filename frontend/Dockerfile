@@ -1,9 +1,11 @@
 FROM python:3.11-slim
 
-RUN mkdir -p logs
+WORKDIR /app
 
-COPY . .
+COPY pyproject.toml .
+COPY src ./src
+COPY src/main.py .
 
 RUN pip install --no-cache-dir .
 
-CMD ["streamlit", "run", "src/main.py", "--server.port", "8501"]
+CMD ["streamlit", "run", "main.py", "--server.port", "8501"]

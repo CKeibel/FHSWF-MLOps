@@ -4,7 +4,7 @@ from mlflow.models import infer_signature
 from sklearn.compose import ColumnTransformer
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, FunctionTransformer
 from src.config import settings
 from src.training.dataset import AdultIncomeData
 from src.training.models import BaseModel, ModelFactory
@@ -15,6 +15,7 @@ class Trainer:
         self.config = settings
         self.data = AdultIncomeData(self.config["dataset"])
         self.preprocessor = self.__init_preprocessor()
+        self.customprocessor = self.__init_customprocessor()
         self.models: list[BaseModel] = self.__load_models_from_config(
             self.config["models"]
         )
@@ -24,7 +25,7 @@ class Trainer:
         if self.preprocessor is None:
             raise ValueError("Preprocessor needs to be initialized first")
         models = [
-            ModelFactory.create_model(model_name)(self.preprocessor)
+            ModelFactory.create_model(model_name)(self.preprocessor, self.customprocessor)
             for model_name in model_names
         ]
         return models
@@ -44,6 +45,21 @@ class Trainer:
             remainder="drop",
         )
         return preprocessor
+    
+    def __init_customprocessor(self) -> FunctionTransformer:
+        
+        if self.data is None:
+            raise ValueError("Data needs to be loaded first")
+        preprocessor = FunctionTransformer(self.custom_preprocessing)
+        
+        return preprocessor
+
+    def custom_preprocessing(self, dfX):
+            print("test")
+            dfX["native-country"] = dfX["native-country"].apply(lambda x: x if x == "United-States" else "Other Countries")
+            dfX["race"] = dfX["race"].apply(lambda x: x if x == "White" else "Other")
+        
+            return dfX 
 
     def fit_and_log(self, n_trails: int = None) -> None:
         mlflow.set_experiment(self.config["mlflow"]["experiment_name"])
@@ -51,8 +67,13 @@ class Trainer:
         for model in self.models:
             with mlflow.start_run(run_name=model.name, nested=True):
                 mlflow.log_table(
-                    data=self.data.origin_data, artifact_file="training_data.json"
+                    data=self.data.current_data, artifact_file="training_data.json"
                 )
+
+                if self.data.visClass is not None:
+                    self.data.visClass.createPlots()
+                    self.data.visClass.safeToRun()
+
                 model.optimize(
                     X_train=self.data.X_train,
                     y_train=self.data.y_train,

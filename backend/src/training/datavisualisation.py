@@ -5,7 +5,6 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
-from dotenv import load_dotenv
 from pathlib import Path
 from jinja2 import Template
 import datetime
@@ -106,9 +105,11 @@ html_template = """
 
 
 class AdultIncomeDataVisualisation:
-    def __init__(self, mlflowRun, dataToVisOrigin, dataToVis):
-        self.mlflow_run = mlflowRun
-        self.artifact_dir = "visualizations"
+    def __init__(self, dataToVisOrigin, dataToVis, config = None):
+        
+        if config is None:
+            self.artifact_dir = "visualizations"
+
         os.makedirs(self.artifact_dir, exist_ok=True)
         self.dataToVisOrigin = dataToVisOrigin
         self.dataToVis = dataToVis
@@ -434,45 +435,3 @@ class AdultIncomeDataVisualisation:
             f.write(html_content)
 
         print("HTML-Bericht wurde erstellt: report.html")
-
-def main():
-    load_dotenv(override=True)
-
-    script_dir = Path(__file__).resolve().parent if "__file__" in globals() else Path(os.getcwd())
-
-    root_dir = script_dir.parent.parent.parent
-
-    dataPath = os.getenv("DATA_PATH")
-    mlflowUri = os.getenv("MLFLOW_TRACKING_URI")
-
-    dataPath = Path(dataPath)
-    mlflowUri = Path(mlflowUri)
-
-    if not dataPath.is_absolute():
-        dataPath = root_dir / dataPath
-    
-    if not mlflowUri.is_absolute():
-        mlflowUri = root_dir / mlflowUri
-
-    print(dataPath)
-    print(mlflowUri)
-
-    import sys
-
-    sys.path.append(os.path.abspath(root_dir / Path('backend/models/income')))
-
-    from data_preparation import AdultIncomeDataPreparation
-
-    data = AdultIncomeDataPreparation(dataPath)
-    
-    mlflow.set_tracking_uri(mlflowUri)
-
-    mlflow.set_experiment("Adult Income")
-
-    with mlflow.start_run() as run:
-        vis = AdultIncomeDataVisualisation(run, data.originData, data.originData)
-        vis.createPlots()
-        vis.safeToRun()
-
-if __name__ == "__main__":
-    main()

@@ -4,11 +4,13 @@ from sklearn.metrics import f1_score
 from sklearn.pipeline import Pipeline
 from src.training.models.base import BaseModel
 from xgboost import XGBClassifier as XGB
+from sklearn.preprocessing import FunctionTransformer
 
 
 class XGBClassifier(BaseModel):
-    def __init__(self, preprocessor: ColumnTransformer) -> None:
+    def __init__(self, preprocessor: ColumnTransformer, customprocessor: FunctionTransformer) -> None:
         self.preprocessor = preprocessor
+        self.customprocessor = customprocessor
         self.model = None
         self.study = None
         self.name = "XGBClassifier"
@@ -28,6 +30,7 @@ class XGBClassifier(BaseModel):
             }
             model = Pipeline(
                 [
+                    ("custom_preprocessor", self.customprocessor),
                     ("preprocessor", self.preprocessor),
                     (
                         "classifier",

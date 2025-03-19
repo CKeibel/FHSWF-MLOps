@@ -19,7 +19,7 @@ class AdultIncomeDataPreparation:
 
 
     def getCategoricalFeatures(self):
-        return ["workclass", "education", "marital-status", "occupation", "relationship", "race", "sex", "native-country"]
+        return ["workclass", "marital-status", "occupation", "relationship", "race", "sex", "native-country"]
 
     def getNummericalFeatures(self):
         return self.X.select_dtypes(include=['int64', 'float64']).columns

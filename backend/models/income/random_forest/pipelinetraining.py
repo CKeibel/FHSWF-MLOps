@@ -54,7 +54,7 @@ class RandomForestIncomeModelTraining:
             with mlflow.start_run(nested=True):
                 pipeline.fit(data.X_train, data.y_train)
                 y_pred = pipeline.pipeline.predict(data.X_test)
-                f1 = pipeline.f1score(data.y_test, y_pred)
+                f1 = pipeline.setf1score(data.y_test, y_pred)
 
                 mlflow.log_param("n_estimators", n_estimators)
                 mlflow.log_param("max_depth", max_depth)

@@ -5,7 +5,6 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
-from dotenv import load_dotenv
 from pathlib import Path
 from jinja2 import Template
 import datetime

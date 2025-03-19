@@ -55,7 +55,6 @@ class AdultIncomeData:
 
     def _split_data(self, X: pd.DataFrame, y: pd.Series) -> None:
         """Split data into training and test sets."""
-        # Use smote to handle class imbalance
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             X, y, test_size=0.15, random_state=42, stratify=y
         )

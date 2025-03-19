@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+
+  mlflow:
+    build:
+      context: .
+      dockerfile: Dockerfile.mlflow
+    ports:
+      - "5001:5000"
+    volumes:
+      - mlflow_data:/mlflow
+    restart: unless-stopped
+
+
   backend:
     build:
       context: ./backend
@@ -15,17 +27,6 @@ services:
       - mlflow
     restart: unless-stopped
 
-  mlflow:
-    image: python:3.11-slim
-    command: >
-      bash -c "pip install mlflow psycopg2-binary &&
-              mlflow ui --host 0.0.0.0 --port 5000 --backend-store-uri file:///mlflow"
-    ports:
-      - "5001:5000"
-    volumes:
-      - mlflow_data:/mlflow
-    restart: unless-stopped
-
   frontend:
     build:
       context: ./frontend
@@ -33,7 +34,7 @@ services:
     ports:
       - "8501:8501"
     environment:
-      - DYNACONF_BACKEND_URL=http://backend:8080/predict
+      - DYNACONF_BACKEND_URL=http://backend:80/predict
     depends_on:
       - backend
     restart: unless-stopped

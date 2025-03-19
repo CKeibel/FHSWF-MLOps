@@ -15,7 +15,8 @@ dependencies = [
     "xgboost >=2.1.4",
     "optuna >=4.2.1",
     "dynaconf >=3.2.10",
-    "python-multipart ==0.0.20"
+    "python-multipart ==0.0.20",
+    "imbalanced-learn >=0.13.0"
 ]
 
 [project.optional-dependencies]

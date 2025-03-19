@@ -3,6 +3,7 @@ import json
 import requests
 import streamlit as st
 from form import get_education_work_fields, get_financial_fields, get_personal_fields
+from loguru import logger
 from src.config import settings
 
 # Custom CSS for styling
@@ -49,6 +50,7 @@ with st.form(key="MLOps Project"):
 
 def send_request(data: dict) -> int:
     payload = {"data": data}
+    logger.info(f"Sending request to backend: {payload} to {settings.backend_url}")
     res = requests.post(settings.backend_url, data=json.dumps(payload))
     if res.status_code == 200:
         return res.json()

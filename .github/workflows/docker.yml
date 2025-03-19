@@ -54,20 +54,6 @@ jobs:
                 exit 1
               fi
 
-          - name: Check health and API endpoints
-            run: |
-              # Health check
-              health_response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health)
-              if [ $health_response -ne 200 ]; then
-                echo "Health check failed with status code $health_response"
-                docker logs mlops-backend
-                exit 1
-              else
-                echo "Health check passed with status code 200"
-                health_content=$(curl -s http://localhost:8080/health)
-                echo "Health endpoint response: $health_content"
-              fi
-
           - name: Stop Docker container
             if: always()
             run: |

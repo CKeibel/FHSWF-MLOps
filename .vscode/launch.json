@@ -16,6 +16,18 @@
                 "--reload"
             ],
             "jinja": true
+        },
+        {
+            "name": "Frontend",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "streamlit",
+            "cwd": "${workspaceFolder}/frontend",
+            "args": [
+                "run",
+                "src/main.py"
+            ],
+            "console": "integratedTerminal"
         }
     ]
 }

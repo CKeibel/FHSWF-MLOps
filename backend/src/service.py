@@ -104,9 +104,9 @@ class Service:
         # Get predictions (handle both binary classification and regression)
         try:
             # Try predict_proba first for classification
-            predictions = self.model.predict_proba(features)[:, 1].tolist()
+            predictions = self.model.predict_proba(features)[:, 1].tolist()[0]
         except (AttributeError, IndexError):
             # Fall back to predict for regression
-            predictions = self.model.predict(features).tolist()
+            predictions = self.model.predict(features).tolist()[0]
 
         return predictions

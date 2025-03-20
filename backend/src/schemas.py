@@ -9,7 +9,6 @@ class AdultIncomeFeatures(BaseModel):
     educational_num: int = Field(
         ...,
         ge=0,
-        le=16,
         alias="educational-num",
         description="Education level (numeric)",
     )
@@ -52,7 +51,7 @@ class PredictionRequest(BaseModel):
 class PredictionResponse(BaseModel):
     """Response model for prediction endpoint."""
 
-    predictions: list[float]
+    prediction: float
     model_version: str
 
 

@@ -8,7 +8,7 @@ default:
     - XGBClassifier
     - RandomForestClassifier
   dataset:
-    path: src/data/adult.csv
+    origin_path: src/data/adult.csv
     columns:
       target: income
       features:

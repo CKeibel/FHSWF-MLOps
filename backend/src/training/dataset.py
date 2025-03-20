@@ -16,7 +16,7 @@ class AdultIncomeData:
             header=0,
         )
 
-        if (config["origin_path"] is not None):
+        if config["origin_path"] is not None:
             self.origin_data = pd.read_csv(
                 config["origin_path"],
                 usecols=self.features + [self.target],
@@ -24,8 +24,10 @@ class AdultIncomeData:
                 header=0,
             )
 
-            self.visClass = AdultIncomeDataVisualisation(self.origin_data, self.current_data, )
-        
+            self.visClass = AdultIncomeDataVisualisation(
+                self.origin_data, self.current_data
+            )
+
         # Process the data
         self._process_data()
 

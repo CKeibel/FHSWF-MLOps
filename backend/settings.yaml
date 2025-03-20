@@ -9,6 +9,7 @@ default:
     - RandomForestClassifier
   dataset:
     origin_path: src/data/adult.csv
+    path: src/data/adult.csv
     columns:
       target: income
       features:

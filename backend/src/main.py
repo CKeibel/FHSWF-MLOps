@@ -1,19 +1,26 @@
 # -*- coding: utf-8 -*-
 """Entrypoint module for the API."""
-import logging
 import sys
+import warnings
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from loguru import logger
 from src.api import router
+from src.config import settings
 from src.service import Service
 from src.training import Trainer
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+warnings.filterwarnings("ignore")
+
+
+# Set up logging
+logger.add(
+    "logs/{time:YYYY-MM-DD}.log",
+    format="{time:YYYY-MM-DD HH:mm:ss} - {level} - {name} - {message}",
+    rotation="00:00",
+    level=settings.logging.level,
 )
-logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager

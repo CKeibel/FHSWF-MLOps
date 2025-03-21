@@ -1,10 +1,11 @@
 import mlflow
+from loguru import logger
 from mlflow.client import MlflowClient
 from mlflow.models import infer_signature
 from sklearn.compose import ColumnTransformer
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, FunctionTransformer
+from sklearn.preprocessing import FunctionTransformer, MinMaxScaler, OneHotEncoder
 from src.config import settings
 from src.training.dataset import AdultIncomeData
 from src.training.models import BaseModel, ModelFactory
@@ -19,19 +20,26 @@ class Trainer:
         self.models: list[BaseModel] = self.__load_models_from_config(
             self.config["models"]
         )
+        logger.info("Trainer initialized.")
 
     def __load_models_from_config(self, model_names: list[str]) -> list[BaseModel]:
         """Load models from config"""
+        logger.info(f"Loading models: {model_names}")
         if self.preprocessor is None:
+            logger.error("Preprocessor needs to be initialized first.")
             raise ValueError("Preprocessor needs to be initialized first")
         models = [
-            ModelFactory.create_model(model_name)(self.preprocessor, self.customprocessor)
+            ModelFactory.create_model(model_name)(
+                self.preprocessor, self.customprocessor
+            )
             for model_name in model_names
         ]
         return models
 
     def __init_preprocessor(self) -> ColumnTransformer:
+        logger.info("Initializing preprocessor...")
         if self.data is None:
+            logger.error("Data needs to be loaded first.")
             raise ValueError("Data needs to be loaded first")
         preprocessor = ColumnTransformer(
             transformers=[
@@ -44,27 +52,32 @@ class Trainer:
             ],
             remainder="drop",
         )
+        logger.info("Preprocessor initialized.")
         return preprocessor
-    
+
     def __init_customprocessor(self) -> FunctionTransformer:
-        
+
+        logger.info("Initializing custom processor...")
         if self.data is None:
+            logger.error("Data needs to be loaded first.")
             raise ValueError("Data needs to be loaded first")
         preprocessor = FunctionTransformer(self.custom_preprocessing)
-        
+        logger.info("Custom processor initialized.")
         return preprocessor
 
     def custom_preprocessing(self, dfX):
-            print("test")
-            dfX["native-country"] = dfX["native-country"].apply(lambda x: x if x == "United-States" else "Other Countries")
-            dfX["race"] = dfX["race"].apply(lambda x: x if x == "White" else "Other")
-        
-            return dfX 
+        dfX["native-country"] = dfX["native-country"].apply(
+            lambda x: x if x == "United-States" else "Other Countries"
+        )
+        dfX["race"] = dfX["race"].apply(lambda x: x if x == "White" else "Other")
+        return dfX
 
     def fit_and_log(self, n_trails: int = None) -> None:
+        logger.info("Starting training and logging...")
         mlflow.set_experiment(self.config["mlflow"]["experiment_name"])
 
         for model in self.models:
+            logger.info(f"Training model: {model.name}")
             with mlflow.start_run(run_name=model.name, nested=True):
                 mlflow.log_table(
                     data=self.data.current_data, artifact_file="training_data.json"
@@ -85,6 +98,8 @@ class Trainer:
                         else n_trails
                     ),
                 )
+
+                logger.info(f"Best parameters: {model.study.best_params}")
                 y_pred = model.model.predict(self.data.X_test)
 
                 # MLflow logging
@@ -113,3 +128,5 @@ class Trainer:
                 client.set_registered_model_alias(
                     model.name, "newest", model_version.version
                 )
+
+                logger.info(f"Model registered as version {model_version.version}")

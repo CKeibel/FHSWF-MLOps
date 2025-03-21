@@ -1,17 +1,10 @@
-import logging
-from datetime import datetime
 from typing import Any
 
 import mlflow
 import pandas as pd
+from loguru import logger
 from mlflow.tracking import MlflowClient
 from src.config import settings
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
 
 
 class Service:
@@ -45,9 +38,12 @@ class Service:
                 logger.warning(f"No model loaded at startup: {str(e)}")
 
             self.initialized = True
+            logger.info("Service initialized.")
 
     def load_model_by_alias(self, alias: str = "newest") -> dict:
         """Load a model by alias from the model registry."""
+
+        logger.info(f"Loading model by alias '{alias}'...")
         try:
             # First, find models that have our alias
             for model_name in settings["models"]:
@@ -74,11 +70,14 @@ class Service:
                         "metrics": {k: v for k, v in run.data.metrics.items()},
                     }
 
+                    logger.info(f"Model loaded successfully: {self.model_metadata}")
+
                     return self.model_metadata
 
                 except mlflow.exceptions.MlflowException:
                     continue
 
+            logger.error(f"No model found with alias '{alias}'")
             raise ValueError(f"No model found with alias '{alias}'")
 
         except Exception as e:
@@ -87,18 +86,27 @@ class Service:
 
     def get_model_info(self) -> dict[str, Any]:
         """Get information about the currently loaded model"""
+        logger.info("Getting model info...")
         if self.model is None or self.model_metadata is None:
+            logger.error("No model loaded")
             raise ValueError("No model loaded")
 
         return self.model_metadata
 
     def predict(self, features: pd.DataFrame) -> list[float]:
         """Make predictions using the currently loaded model"""
+
+        logger.info("Making prediction...")
+
         if self.model is None:
+            logger.error("No model loaded. Call set_model_by_tag first.")
             raise ValueError("No model loaded. Call set_model_by_tag first.")
 
         # Ensure features are in the expected format
         if hasattr(self.model, "feature_names_in_"):
+            logger.info(
+                f"Filtering features to model input: {self.model.feature_names_in_}"
+            )
             features = features[list(self.model.feature_names_in_)]
 
         # Get predictions (handle both binary classification and regression)
@@ -109,4 +117,5 @@ class Service:
             # Fall back to predict for regression
             predictions = self.model.predict(features).tolist()[0]
 
+        logger.info(f"Predictions: {predictions}")
         return predictions

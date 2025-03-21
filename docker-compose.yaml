@@ -18,7 +18,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "8080:80"
+      - "8080:8080"
     environment:
       - DYNACONF_MLFLOW__TRACKING_URI=http://mlflow:5000
     volumes:
@@ -34,7 +34,7 @@ services:
     ports:
       - "8501:8501"
     environment:
-      - DYNACONF_BACKEND_URL=http://backend:80/predict
+      - DYNACONF_BACKEND_URL=http://backend:8080/predict
     depends_on:
       - backend
     restart: unless-stopped

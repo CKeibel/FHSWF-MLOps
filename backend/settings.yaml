@@ -1,4 +1,6 @@
 default:
+  logging:
+    level: DEBUG # DEBUG, INFO, WARNING, ERROR, CRITICAL
   mlflow:
     tracking_uri: mlruns
     experiment_name: AdultIncome

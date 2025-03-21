@@ -1,11 +1,15 @@
-name: Docker
+name: Build and Test Backend Docker Image
 on:
   pull_request:
     branches:
       - main
+    paths:
+      - 'backend/**'
   push:
     branches:
       - main
+    paths:
+      - 'backend/**'
 
 jobs:
     test-docker-backend-build:
@@ -19,7 +23,7 @@ jobs:
             working-directory: backend
 
           - name: Run Docker container
-            run: docker run -d -p 8080:80 --name mlops-backend mlops-backend
+            run: docker run -d -p 8080:8080 --name mlops-backend mlops-backend
             working-directory: backend
 
           - name: Wait for container health check

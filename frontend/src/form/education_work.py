@@ -38,13 +38,6 @@ def get_education_work_fields():
         ),
     )
 
-    education_num = st.number_input(
-        label="Education Number",
-        min_value=0,
-        value=0,
-        help="Number of years of education completed",
-    )
-
     occupation = st.selectbox(
         label="Occupation",
         options=(
@@ -72,4 +65,4 @@ def get_education_work_fields():
         help="Average hours worked per week",
     )
 
-    return workclass, education, education_num, occupation, hours_per_week
+    return workclass, education, occupation, hours_per_week

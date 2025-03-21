@@ -39,9 +39,7 @@ with st.form(key="MLOps Project"):
         )
 
     with education_work:
-        workclass, education, education_num, occupation, hours_per_week = (
-            get_education_work_fields()
-        )
+        workclass, education, occupation, hours_per_week = get_education_work_fields()
 
     captial_gain, capital_loss, fnlwgt = get_financial_fields()
 
@@ -59,6 +57,25 @@ def send_request(data: dict) -> int:
 
 # Submit
 if submit_button:
+    education_mapping = {
+        "Preschool": 1,
+        "1st-4th": 2,
+        "5th-6th": 3,
+        "7th-8th": 4,
+        "9th": 5,
+        "10th": 6,
+        "11th": 7,
+        "12th": 8,
+        "HS-grad": 9,
+        "Some-college": 10,
+        "Assoc-voc": 11,
+        "Assoc-acdm": 12,
+        "Bachelors": 13,
+        "Masters": 14,
+        "Prof-school": 15,
+        "Doctorate": 16,
+    }
+
     data = {
         "age": age,
         "gender": gender,
@@ -68,7 +85,7 @@ if submit_button:
         "native-country": native_country,
         "workclass": workclass,
         "education": education,
-        "educational-num": education_num,
+        "educational-num": education_mapping.get(education, 0),
         "occupation": occupation,
         "hours-per-week": hours_per_week,
         "capital-gain": captial_gain,

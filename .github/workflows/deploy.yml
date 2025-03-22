@@ -58,3 +58,10 @@ jobs:
           context: ./docs
           push: true
           tags: ${{ secrets.REGISTRY_LOGIN_SERVER }}/docs:latest
+
+      - name: Build and Push Nginx
+        uses: docker/build-push-action@v5
+        with:
+          context: ./docs
+          push: true
+          tags: ${{ secrets.REGISTRY_LOGIN_SERVER }}/docs:latest

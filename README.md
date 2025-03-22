@@ -69,7 +69,7 @@ project/
 │   ├── src/ # Backend implementation
 │       │── training/ # Implementation of Trainings
             │── data # origin Data for training
-│           │── models/ # Base Model and Models for Experiments    
+│           │── models/ # Base Model and Models for Experiments
 │   ├── tests/ # Backend tests
 │   ├── Dockerfile # Containerization
 │   ├── pyproject.toml # Dependencies
@@ -98,7 +98,7 @@ cd backend
 # Build
 docker build -t mlops-backend .
 # Run on port 8080
-docker run -d -p 8080:80 --restart unless-stopped --name mlops-backend mlops-backend
+docker run -d -p 8080:8080 --restart unless-stopped --name mlops-backend mlops-backend
 ```
 
 **frontend**
@@ -107,17 +107,15 @@ docker run -d -p 8080:80 --restart unless-stopped --name mlops-backend mlops-bac
 cd frontend
 # Build
 docker build -t mlops-frontend .
-# Run on port 5000
-docker run -d -p 5000:5000 --restart unless-stopped --name mlops-frontend mlops-frontend
-# Open Frontend for Inferenz via http://127.0.0.1:8080 
-# Open Swagger Documentation via http://127.0.0.1:8080/docs
-
+# Run on port 8501
+docker run -d -p 8501:8501 --restart unless-stopped --name mlops-frontend mlops-frontend
+# Open Frontend for Inference via http://127.0.0.1:8501
 ```
 
 # Training
 
 ## Adding New Experiments
-To train a new model, it must be added under models in settings.yaml. The model must implement at least the functions defined in base.py. The existing models RandomForest and XGBoost serve as examples. 
+To train a new model, it must be added under models in settings.yaml. The model must implement at least the functions defined in base.py. The existing models RandomForest and XGBoost serve as examples.
 
 ## Versioning of Training Data
 To ensure versioning of training data, the data is stored as an artifact for each experiment. Additionally, all relevant metrics for the model are logged in MLflow. Each training dataset is evaluated as described, and the corresponding information is stored as artifacts in the MLflow backend.
@@ -126,7 +124,7 @@ To ensure versioning of training data, the data is stored as an artifact for eac
 Data preparation is performed using an sklearn pipeline as seen in the example models. Each model can use a “customprocessor” and a “preprocessor” to prepare the data. The “customprocessor” adjusts the fields according to the findings from the data evaluation. The preprocessor is used to encode the categorical data “one-hot”, for example, or to use a MinMaxScaler for numerical values. This pipeline is stored together with the model in the MLflow backend after training and is used for inference. This ensures that all data is processed consistently within the model.
 
 ## Hyperparameter Tuning
-For the example models, hyperparameter tuning is performed. The best result from this Optuna study is then stored in MLflow Models for each model. The value ranges for hyperparameter tuning are defined in the respective model class. 
+For the example models, hyperparameter tuning is performed. The best result from this Optuna study is then stored in MLflow Models for each model. The value ranges for hyperparameter tuning are defined in the respective model class.
 
 ## Labeling der Modelle
 The latest model is labeled as newest. Note that multiple experiments may result in multiple models labeled as newest. It is recommended to use labels such as "Production" and "Staging" to maintain clarity when accessing models via the backend. This labeling must be performed manually in the MLflow backend to ensure a clear transition between staging and production.
@@ -156,9 +154,9 @@ Monitoring is available through the /health and /model_info endpoints. The /heal
 ## Unit Tests und Integration Tests
 
 
-These Project use MLFlow as a Backend for managing the lifecycle for models. After each upload from new data over the endpoint /upload_data a new training will be started. 
+These Project use MLFlow as a Backend for managing the lifecycle for models. After each upload from new data over the endpoint /upload_data a new training will be started.
 
-hinzufügen von neuen modellen 
+hinzufügen von neuen modellen
 
 
 BEst Model warum nicht gesetzt?
@@ -166,8 +164,8 @@ Nur New gesetzt
 Datenversionierung in MLFlow Artifacs Daten aus Ordner über Runid holen
 Monitoring über Healthcheck
 Neue Daten fügt zu neu Training
-Setzen der MOdelle findet über Alias statt 
-Machen keine 
+Setzen der MOdelle findet über Alias statt
+Machen keine
 Hyperparametertraining
 Nach dem Hochladen von Daten wird neiu trainiert und Modell in Experiments gesichert. Bestes Model nach optuna Tuning wird als Model gespeichert und kann gelabelt werden und dann über das Backend angesporchen werden
 Bei Training wird API nicht blockiert

@@ -4,6 +4,8 @@ services:
 
   nginx:
     image: mlops.azurecr.io/nginx:latest
+    ports:
+      - "80:80"
 
   mlflow:
     image: mlops.azurecr.io/mlflow:latest

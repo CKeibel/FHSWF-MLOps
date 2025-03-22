@@ -1,16 +1,53 @@
-name: Deploy Production
+name: Build and Push to ACR
 on:
   workflow_run:
-    workflows: ["Pytest", "Docker"]
+    workflows: ["Pytest"]
     branches: [main]
     types: [completed]
 
+env:
+  REGISTRY_LOGIN_SERVER: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
-    if: >
-      github.event.workflow_run.conclusion == 'success' &&
-      github.ref == 'refs/heads/main'
     steps:
-      - name: Deploy to Prod
-        run: echo "Deploying to production"
+      # Checkout Repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Login to Azure
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Login to Azure Container Registry
+      - name: Docker Login to ACR
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      # Build and Push Docker Images
+      - name: Build and Push Images
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          platforms: linux/amd64
+          tags: |
+            ${{ secrets.REGISTRY_LOGIN_SERVER }}/backend:latest
+            ${{ secrets.REGISTRY_LOGIN_SERVER }}/frontend:latest
+            ${{ secrets.REGISTRY_LOGIN_SERVER }}/mlflow:latest
+            ${{ secrets.REGISTRY_LOGIN_SERVER }}/docs:latest
+          context: |
+            backend=./backend
+            frontend=./frontend
+            mlflow=.
+            docs=./docs
+          file: |
+            backend=./backend/Dockerfile
+            frontend=./frontend/Dockerfile
+            mlflow=./Dockerfile.mlflow
+            docs=./docs/Dockerfile

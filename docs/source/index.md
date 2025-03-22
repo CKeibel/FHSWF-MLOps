@@ -1,0 +1,21 @@
+# MLOps Project documentation
+
+This is a test
+
+```{toctree}
+:caption: MLOps Project
+```
+
+```{toctree}
+:caption: Project Setup
+:maxdepth: 2
+
+docs.md
+````
+
+```{toctree}
+:caption: Project & Data
+:maxdepth: 2
+
+notebooks/data_analysis.ipynb
+```

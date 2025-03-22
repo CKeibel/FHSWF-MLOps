@@ -7,15 +7,9 @@ This is a test
 ```
 
 ```{toctree}
-:caption: Project Setup
-:maxdepth: 2
-
-docs.md
-````
-
-```{toctree}
-:caption: Project & Data
-:maxdepth: 2
-
+setup.md
+training.md
+live-mode.md
+deployment.md
 notebooks/data_analysis.ipynb
-```
+````

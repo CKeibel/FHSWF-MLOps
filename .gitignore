@@ -27,3 +27,5 @@ visualizations
 
 */logs
 *.log
+
+/docs/build/*

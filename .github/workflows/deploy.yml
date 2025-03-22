@@ -1,4 +1,4 @@
-name: Build and Push to ACR
+name: Conditional Build and Push
 on:
   workflow_run:
     workflows: ["Pytest"]
@@ -9,21 +9,30 @@ env:
   REGISTRY_LOGIN_SERVER: ${{ secrets.REGISTRY_LOGIN_SERVER }}
 
 jobs:
-  build-and-push:
+  backend:
     runs-on: ubuntu-latest
     steps:
-      # Checkout Repository
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
-      # Login to Azure
+      - name: Check backend changes
+        uses: dorny/paths-filter@v3
+        id: backend-filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+
       - name: Login to Azure
+        if: steps.backend-filter.outputs.backend == 'true'
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # Login to Azure Container Registry
       - name: Docker Login to ACR
+        if: steps.backend-filter.outputs.backend == 'true'
         uses: azure/docker-login@v1
         with:
           login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
@@ -31,20 +40,77 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Build and Push Backend
+        if: steps.backend-filter.outputs.backend == 'true'
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           push: true
           tags: ${{ secrets.REGISTRY_LOGIN_SERVER }}/backend:latest
 
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Check frontend changes
+        uses: dorny/paths-filter@v3
+        id: frontend-filter
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
+
+      - name: Login to Azure
+        if: steps.frontend-filter.outputs.frontend == 'true'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Docker Login to ACR
+        if: steps.frontend-filter.outputs.frontend == 'true'
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
       - name: Build and Push Frontend
+        if: steps.frontend-filter.outputs.frontend == 'true'
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           push: true
           tags: ${{ secrets.REGISTRY_LOGIN_SERVER }}/frontend:latest
 
+  mlflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Check MLflow changes
+        uses: dorny/paths-filter@v3
+        id: mlflow-filter
+        with:
+          filters: |
+            mlflow:
+              - 'Dockerfile.mlflow'
+
+      - name: Docker Login to ACR
+        if: steps.mlflow-filter.outputs.mlflow == 'true'
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
       - name: Build and Push MLflow
+        if: steps.mlflow-filter.outputs.mlflow == 'true'
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -52,14 +118,65 @@ jobs:
           push: true
           tags: ${{ secrets.REGISTRY_LOGIN_SERVER }}/mlflow:latest
 
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Check docs changes
+        uses: dorny/paths-filter@v3
+        id: docs-filter
+        with:
+          filters: |
+            docs:
+              - 'docs/**'
+
+      - name: Docker Login to ACR
+        if: steps.docs-filter.outputs.docs == 'true'
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
       - name: Build and Push Docs
+        if: steps.docs-filter.outputs.docs == 'true'
         uses: docker/build-push-action@v5
         with:
           context: ./docs
           push: true
           tags: ${{ secrets.REGISTRY_LOGIN_SERVER }}/docs:latest
 
+  nginx:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Check nginx changes
+        uses: dorny/paths-filter@v3
+        id: nginx-filter
+        with:
+          filters: |
+            nginx:
+              - 'Dockerfile.nginx'
+              - 'nginx.conf'
+
+      - name: Docker Login to ACR
+        if: steps.nginx-filter.outputs.nginx == 'true'
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
       - name: Build and Push Nginx
+        if: steps.nginx-filter.outputs.nginx == 'true'
         uses: docker/build-push-action@v5
         with:
           context: .

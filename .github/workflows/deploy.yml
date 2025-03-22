@@ -41,11 +41,7 @@ jobs:
             ${{ secrets.REGISTRY_LOGIN_SERVER }}/frontend:latest
             ${{ secrets.REGISTRY_LOGIN_SERVER }}/mlflow:latest
             ${{ secrets.REGISTRY_LOGIN_SERVER }}/docs:latest
-          context: |
-            backend=./backend
-            frontend=./frontend
-            mlflow=.
-            docs=./docs
+          context: .
           file: |
             backend=./backend/Dockerfile
             frontend=./frontend/Dockerfile

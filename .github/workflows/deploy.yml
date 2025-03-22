@@ -30,20 +30,31 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      # Build and Push Docker Images
-      - name: Build and Push Images
+      - name: Build and Push Backend
         uses: docker/build-push-action@v5
         with:
+          context: ./backend
           push: true
-          platforms: linux/amd64
-          tags: |
-            ${{ secrets.REGISTRY_LOGIN_SERVER }}/backend:latest
-            ${{ secrets.REGISTRY_LOGIN_SERVER }}/frontend:latest
-            ${{ secrets.REGISTRY_LOGIN_SERVER }}/mlflow:latest
-            ${{ secrets.REGISTRY_LOGIN_SERVER }}/docs:latest
+          tags: ${{ secrets.REGISTRY_LOGIN_SERVER }}/backend:latest
+
+      - name: Build and Push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ secrets.REGISTRY_LOGIN_SERVER }}/frontend:latest
+
+      - name: Build and Push MLflow
+        uses: docker/build-push-action@v5
+        with:
           context: .
-          file: |
-            backend=./backend/Dockerfile
-            frontend=./frontend/Dockerfile
-            mlflow=./Dockerfile.mlflow
-            docs=./docs/Dockerfile
+          file: ./Dockerfile.mlflow
+          push: true
+          tags: ${{ secrets.REGISTRY_LOGIN_SERVER }}/mlflow:latest
+
+      - name: Build and Push Docs
+        uses: docker/build-push-action@v5
+        with:
+          context: ./docs
+          push: true
+          tags: ${{ secrets.REGISTRY_LOGIN_SERVER }}/docs:latest

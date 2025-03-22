@@ -3,7 +3,7 @@ from loguru import logger
 from mlflow.client import MlflowClient
 from mlflow.models import infer_signature
 from sklearn.compose import ColumnTransformer
-from sklearn.metrics import accuracy_score, f1_score
+from sklearn.metrics import accuracy_score, f1_score, confusion_matrix
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer, MinMaxScaler, OneHotEncoder
 from src.config import settings
@@ -102,12 +102,19 @@ class Trainer:
                 logger.info(f"Best parameters: {model.study.best_params}")
                 y_pred = model.model.predict(self.data.X_test)
 
+                cm = confusion_matrix(self.data.y_test, y_pred)
+                tn, fp, fn, tp = cm.ravel()
+
                 # MLflow logging
                 mlflow.log_params(model.study.best_params)
                 mlflow.log_metrics(
                     {
                         "accuracy": accuracy_score(self.data.y_test, y_pred),
                         "f1_score": f1_score(self.data.y_test, y_pred),
+                        "true_positive": tp,
+                        "false_positive": fp,
+                        "true_negative": tn,
+                        "false_negative": fn,
                     }
                 )
 

@@ -10,7 +10,7 @@ This is a test
 :caption: Project Setup
 :maxdepth: 2
 
-project-setup.md
+docs.md
 ````
 
 ```{toctree}

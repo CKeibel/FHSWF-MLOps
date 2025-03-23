@@ -5,6 +5,7 @@ import warnings
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 from src.api import router
 from src.config import settings
@@ -52,5 +53,7 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+app.add_middleware(CORSMiddleware, allow_origins=["*"])
 
 app.include_router(router)

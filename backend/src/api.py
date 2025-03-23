@@ -21,8 +21,17 @@ router = APIRouter()
 service = Service()  # Singleton instance
 
 
-@router.get("/health", response_model=dict)
+@router.get("/", response_model=dict)
 def read_root():
+    model_loaded = service.model is not None
+    return {
+        "status": "ok" if model_loaded else "no_model",
+        "model_version": service.model_version if model_loaded else None,
+    }
+
+
+@router.get("/health", response_model=dict)
+def health():
     model_loaded = service.model is not None
     return {
         "status": "ok" if model_loaded else "no_model",

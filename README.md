@@ -178,7 +178,7 @@ docker run -d -p 8501:8501 --restart unless-stopped --name mlops-frontend mlops-
 
 **docs**
 ```
-# Switch to frontend directory
+# Switch to docs directory
 cd docs
 # Build
 docker build -t docs .

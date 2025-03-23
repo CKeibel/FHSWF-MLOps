@@ -32,7 +32,7 @@ class Service:
 
             # Try to load model on initialization
             try:
-                self.load_model_by_alias("best")
+                # self.load_model_by_alias("best")
                 logger.info(f"Loaded model version {self.model_version} successfully")
             except Exception as e:
                 logger.warning(f"No model loaded at startup: {str(e)}")

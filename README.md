@@ -462,18 +462,3 @@ Hosts the multi-container application using Docker Compose with environment vari
 Routes incoming requests based on URL paths to the appropriate container services.
 
 This setup provides a scalable and efficient solution for deploying multi-container applications on Azure while ensuring all services are accessible via a single entry point.
-
-# TODO
-hinzufügen von neuen modellen
-
-- Frontend beschreiben ?
-- BEst Model warum nicht gesetzt?
-- Nur New gesetzt
-- Datenversionierung in MLFlow Artifacs Daten aus Ordner über Runid holen
-- Monitoring über Healthcheck
-- Neue Daten fügt zu neu Training
-- Setzen der MOdelle findet über Alias statt
-- Machen keine
-- Hyperparametertraining
-- Nach dem Hochladen von Daten wird neiu trainiert und Modell in Experiments gesichert. Bestes Model nach optuna Tuning wird als Model gespeichert und kann gelabelt werden und dann über das Backend angesporchen werden
-Bei Training wird API nicht blockiert
